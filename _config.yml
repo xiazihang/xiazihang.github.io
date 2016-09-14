@@ -5,8 +5,8 @@ header-img: img/home-bg.jpg
 email: yoyoxiazihang@gmail.com
 description: "夏梓航的实验室 | Albert's Lab"
 keyword: "夏梓航的实验室 | Albert's Lab"
-url: "http://xiazihang.github.io"              # your host, for absolute URL
-baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
+url: "https://xiazihang.github.io"              # your host, for absolute URL
+baseurl: "https://xiazihang.github.io"         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
 
