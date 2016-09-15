@@ -9,7 +9,9 @@ tags:
 
 > “Ruby的元编程一直是一个充满吸引力的话题，看了两遍《Ruby元编程》，这是第三遍，每一遍都会有不同的收获，此笔记会一直更新下去，除了元编程，还会包括一些平时工作学习中碰到的一些Ruby方面的问题”
 
-###  第一章 对象模型
+#  第一章 对象模型
+
+*1.1 类、实例变量、方法*
 
 Ruby是一门完全面向对象的语言，万物皆对象，根据[面向对象编程](https://zh.wikipedia.org/zh-cn/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1)的思想，对象是类的一个实例，而Ruby中，类也是一个对象，这个概念是能否理解Ruby元编程的关键，例如：
 {% highlight ruby %}
@@ -23,4 +25,84 @@ obj_a = A.new
 A = Class.new #=> Class类的一个实例
 obj_a = A.new #=> A类的一个实例
 {% endhighlight %}
-即`A`类是类`Class`的一个对象，此时已经开始接触到`元`思想，即用自己描述自己，而描述一个类的类，通常称为`元类`(metaclass)，不过在Ruby中，元类和普通类并无差别，甚至Ruby还是一个单根的面向对象语言，即所有类都集成自`Object`类，包括上面提到的`Class`类
+即`A`类是类`Class`的一个对象，此时已经开始接触到`元`思想，即用自己描述自己，而描述一个类的类，通常称为`元类`(metaclass)，不过在Ruby中，元类和普通类并无差别，甚至Ruby还是一个单根的面向对象语言，即所有类都集成自`Object`类，包括上面提到的`Class`类，看下下面这个单元测试的栗子：
+{% highlight ruby %}
+require 'test/unit'
+
+class MetaTest < Test::Unit::TestCase
+
+  def test_class
+    str = String.new
+    #str is an instance of the class String
+    assert_equal String, str.class
+    #the class String is an instance of the class Class
+    assert_equal Class, String.class
+  end
+
+end
+{% endhighlight %}
+* * *
+
+*实例变量、方法*
+
+与其他语言一样，Ruby中的对象包含特有的实例变量，不同的对象所包含的实例变量不尽相同，但是同一个类的对象都共享相同的实例方法，也就是说方法是保存在类中，而实例变量是保存在对象中：
+{% highlight ruby%}
+class B
+  def initialize(attr1, attr2)
+    @attr_1 = attr1
+    @attr_2 = attr2
+  end
+
+  def foo
+    puts "foo"
+  end
+
+  def bar
+    puts "bar"
+  end
+end
+
+obj1 = B.new("a1", "a2")
+obj2 = B.new("a3", "a4")
+obj1.attr_1 #=> "a1"
+obj1.attr_2 #=> "a2"
+obj2.attr_1 #=> "a3"
+obj2.attr_2 #=> "a4"  //obj1与obj2所包含的实例变量不同
+
+obj1.methods == obj2.methods #=> true //obj1与obj2共享相同的实例方法
+{% endhighlight%}
+
+从技术层面上来说，一个对象（实例）只是存储了他的实例变量，以及指向本实例的类的引用，所以实例变量只存在于对象中，也就是当对象创建时，才会被建立，因此，不同的对象所包含的实例变量也不相同，而方法（实例方法（InstanceMethods））是存在于对象所属的类中，即同一个类的所有对象都共享该类的所有实例方法。
+![]({{site.baseurl}}/img/in-post/post-ruby-notes/instance-methods-class.png)
+* * *
+
+*类*
+* 类也是对象
+* 因为类也是对象，所以所有能应用于对象的皆可应用于类。类和对象一样也有它们自己的类。
+* 像对象一样，类也有自己的方法，对象的方法即是所属类的实例方法。
+* 所有的类有共同的祖先Object类（都是从Object类直接或间接继承而来），而Object类又继承自BasicObject类，Ruby类的根本。
+* 类名是常量(Constant)。
+
+参考下面代码：
+{% highlight ruby%}
+#对象的方法即是所属类的实例方法
+1.methods == 1.class.instance_methods
+#=> true
+
+#继承链
+N = Class.new
+N.ancestors
+#=> [N, Object, Kernel, BasicObject]
+N.class
+#=> Class
+N.superclass
+#=> Object
+N.superclass.superclass
+#=> BasicObject
+N.superclass.superclass.superclass
+#=> nil
+{% endhighlight%}
+* * *
+*匿名类*
+
+一个匿名类（`Anonymous Class`）也被称为单件类（`Singleton Class`），特征类（`Eigenclass`），鬼魂类（`GhostClass`），元类（`MetaClass`）
