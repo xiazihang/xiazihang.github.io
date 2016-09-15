@@ -2,8 +2,8 @@
 layout:   post
 title:    "Welcome to Albert's Blog"
 subtitle: "\"Find me a place to calm down\""
-data:     2016-09-14 21:00:00
-author:   "Alber"
+date:     2016-09-14 21:00:00
+author:   "Albert"
 tags:
     - Trash Talk
 ---
