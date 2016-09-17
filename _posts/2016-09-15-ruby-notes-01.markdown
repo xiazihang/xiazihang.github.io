@@ -9,10 +9,6 @@ tags:
 
 > “Ruby的元编程一直是一个充满吸引力的话题，看了两遍《Ruby元编程》，这是第三遍，每一遍都会有不同的收获，此笔记会一直更新下去，除了元编程，还会包括一些平时工作学习中碰到的一些Ruby方面的问题”
 
-#  第一章 对象模型
-
-*1.1 类、实例变量、方法*
-
 Ruby是一门完全面向对象的语言，万物皆对象，根据[面向对象编程](https://zh.wikipedia.org/zh-cn/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1)的思想，对象是类的一个实例，而Ruby中，类也是一个对象，这个概念是能否理解Ruby元编程的关键，例如：
 {% highlight ruby %}
 class A
@@ -106,3 +102,144 @@ N.superclass.superclass.superclass
 *匿名类*
 
 一个匿名类（`Anonymous Class`）也被称为单件类（`Singleton Class`），特征类（`Eigenclass`），鬼魂类（`GhostClass`），元类（`MetaClass`）
+
+* * *
+*方法的调用*
+
+当你调用一个方法时，Ruby会做如下的事情：
+* 找到这个方法，我们把这个过程叫做方法查找method_lookup
+* 执行这个方法，为了执行这个方法，Ruby需要一个伪变量self
+
+* * *
+*内省、反射*
+
+在Ruby中，我们完全有能力在执行过程中查看类或对象的信息，我们可以使用`class`、`instance_methods`、`instance_variables`等方法来达到目的，这种技术称为`内省（Introspection）`或者`反射（Reflection）`
+{% highlight ruby%}
+class A
+  def foo
+    @var = 'var'
+  end
+end
+
+obj = A.new
+obj #=> #<A:0x000001013834c8>
+obj.class #=> A
+obj.class.instance_methods(false) #=> [:foo]
+obj.foo #=> 'var'
+obj #=> #<A:0x000001013834c8 @var="var"> //实例变量@var被放入到调用foo方法的对象obj中
+obj.instance_variables #=> [:@var]
+{% endhighlight%}
+respond_to?方法是反射机制中很重要的一个方法，使用respon_to?方法能够在对象调用某方法前知道该对象是否能够调用此方法，所有对象（包括类）都有此方法。
+
+* * *
+*Send方法*
+
+`send`是`Object`类中的实例方法，所有任何继承自Object类的子类的对象都能调用此方法，send方法的第一个参数是你想要调用的方法名，一般用符号（Symbol）表示，剩下的参数直接传递给要调用的方法作为参数，你可以通过`send`方法调用任何方法，甚至是私有（private）方法。
+
+* * *
+*define_method*
+`define_method`是`module`类的一个私有实例方法，因此`define_method`只用由类或者模块使用。你可以动态的通过`define_method`在receiver（类或者模块）中定义实例方法。而你仅需要传递一个方法名和一个代码块（block）
+
+* * *
+*method_missing*
+
+`method_missing`是`kernel`模块中的方法，会在对象调用一个通过方法查找无法找到的方法时被调用，并抛出一个`NoMethodError`的错误，所以在子类中复写此方法可以用来精简代码，当然，此方法的执行效率不是很理想，对性能敏感的项目需要慎用。
+
+{% highlight ruby%}
+class Foo
+  def go(place)
+    puts "go to #{place}"
+  end
+
+  def method_missing(name, *args)
+    if name =~/^go_to_(.*)/
+        go($1)
+    else
+        super
+    end
+  end
+end
+
+obj = Foo.new
+obj.go_to_beijing #=> 'go to beijing'
+obj.gotobeijing #=> NoMethodError
+{% endhighlight%}
+
+* * *
+*remove_method、undef_method*
+`remove_method`和`undef_method`均能移除方法，区别在于：
+* remove_method只能移除当前打开类的scope(作用域)中移除指定的方法，而任何其父累或祖先类中的同名方法依然能够调用。
+* undef_method会移除包括当前类在内的其继承链上所有类中的同名方法。
+
+* * *
+*instance_eval*
+`instance_eval`是`Object`类提供的一个公开方法，该方法可以被一个实例调用。它提供了可以操作对象的实例变量的途径。
+`instance_eval`方法同样可以被`类（Class）`调用（类也是对象），以定义类方法：
+{% highlight ruby%}
+class A; end
+#定义实例方法
+A.instance_eval do
+  define_method :foo do
+    puts "instance method foo"
+  end
+end
+
+A.new.foo #=> "class methods foo"
+
+A.instance_eval do
+  def foo
+    puts "class method foo"
+  end
+end
+
+A.foo #=> "class method foo"
+{% endhighlight%}
+
+* * *
+*class_eval、module_eval*
+`module_eval`和`class_eval`用于模块和类，而不是对象。`class_eval`是`module_eval`的一个别名。`module_eval`和`class_eval`可以从外部检索类变量。
+两种方法都可以在模块和类中定义实例方法，尽管名字不同，但是功能是相同的。
+{% highlight ruby%}
+class A; end
+#定义实例方法
+A.class_eval do
+  def foo
+    puts "instance method foo"
+  end
+end
+
+A.new.foo #=> "class method foo"
+
+#定义类方法
+A.class_eval do
+  define_singleton_method :foo do
+    def foo
+      "class method foo"
+    end
+  end
+end
+
+A.foo #=> "class method foo"
+{% endhighlight%}
+
+* * *
+*const_get、const_set*
+`const_set`、`const_get`用于操作常量。`const_get`返回指定常量的值。
+`const_set`为指定的常量设置指定的值，并返回该对象，如果该常量不存在，则会创建该常量，利用这一特性，我们可以在运行时创建类并实例化其实例。
+{% highlight ruby%}
+class_name = "foo".capitalize
+class_name = Object.const_set(class_name, Class.new)
+class_name.class_eval do
+  define_method :who do |name, age|
+    puts "#{name} ---- #{age}"
+  end
+end
+
+obj = class_name.new
+obj.who("xzh", 18) #=> "xzh ---- 18"
+{% endhighlight%}
+
+
+
+
+
