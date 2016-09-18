@@ -166,13 +166,13 @@ obj.gotobeijing #=> NoMethodError
 {% endhighlight%}
 
 * * *
-*remove_method、undef_method*
-`remove_method`和`undef_method`均能移除方法，区别在于：
+*remove_method、undef_method*  
+`remove_method`和`undef_method`均能移除方法，区别在于：  
 * remove_method只能移除当前打开类的scope(作用域)中移除指定的方法，而任何其父累或祖先类中的同名方法依然能够调用。
 * undef_method会移除包括当前类在内的其继承链上所有类中的同名方法。
 
 * * *
-*instance_eval*
+*instance_eval*  
 `instance_eval`是`Object`类提供的一个公开方法，该方法可以被一个实例调用。它提供了可以操作对象的实例变量的途径。
 `instance_eval`方法同样可以被`类（Class）`调用（类也是对象），以定义类方法：
 {% highlight ruby%}
@@ -196,7 +196,7 @@ A.foo #=> "class method foo"
 {% endhighlight%}
 
 * * *
-*class_eval、module_eval*
+*class_eval、module_eval*  
 `module_eval`和`class_eval`用于模块和类，而不是对象。`class_eval`是`module_eval`的一个别名。`module_eval`和`class_eval`可以从外部检索类变量。
 两种方法都可以在模块和类中定义实例方法，尽管名字不同，但是功能是相同的。
 {% highlight ruby%}
@@ -223,7 +223,7 @@ A.foo #=> "class method foo"
 {% endhighlight%}
 
 * * *
-*const_get、const_set*
+*const_get、const_set*  
 `const_set`、`const_get`用于操作常量。`const_get`返回指定常量的值。
 `const_set`为指定的常量设置指定的值，并返回该对象，如果该常量不存在，则会创建该常量，利用这一特性，我们可以在运行时创建类并实例化其实例。
 {% highlight ruby%}
