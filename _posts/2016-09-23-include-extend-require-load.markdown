@@ -1,6 +1,6 @@
 ---
 layout: post
-title: include、extend、require、load的区别
+title: Ruby中一些易混淆的概念区别
 date:  2016-09-23 12:00:00
 author: "Albert"
 tags:
@@ -42,24 +42,24 @@ end
 
 A.foo #=> "class method"
 {% endhighlight%}
-> 总结：`include`与`extend`的最大区别即是被引入的模块的方法前者是实例方法，后者是类方法。
-- - - 
+> 总结：`include`与`extend`的最大区别即是被引入的模块的方法前者是实例方法，后者是类方法。  
+* * *  
 # require VS load
-- - - 
+- - -  
 * require：`require`允许你载入一个library并且会阻止你载入多次，当你使用`require`载入一个library多次时，`require`会返回`false`   
 * load：`load`方法基本与`require`一致，不过它不会跟踪要导入的library是否被加载，因此，当重复使用`load`载入同一个library时也会载入成功。   
 
-> 总结：大部分情况下你会使用`require`来代替`load`，但当你每次都需要重新加载时你才会考虑使用`load`，例如模块的状态频繁变化的时候，你会使用`load`进行加载。
-- - - 
+> 总结：大部分情况下你会使用`require`来代替`load`，但当你每次都需要重新加载时你才会考虑使用`load`，例如模块的状态频繁变化的时候，你会使用`load`进行加载。  
+- - -  
 # eql? VS equal? VS === VS ==
-- - - 
+- - -  
 * eql?：`eql?`和通常意义上的`相等`一样，如果两个对象的值相等，那么`eql?`就返回`true`。但是需要注意一点就是当子类中修改了`==`方法，应该alias给`eql?`，另外还需要注意些特殊的情况，例如：  
 {% highlight ruby%}
 1 == 1.0 #=> true
 1.eql? 1.0 #=> false
 {% endhighlight%}
 在整数和小数的比较时，`eql?`与`==`的表现会不一致。
-* equal?：比较内存地址相同的对象，即两个对象的`object_id`相等才会返回true。 
+* equal?：比较内存地址相同的对象，即两个对象的`object_id`相等才会返回true。  
 {% highlight ruby%}
 a = "a"
 b = "a"
