@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Spring Batch 
-date:  2016-10-01 22:42:00
+date:  2016-10-30 22:42:00
 author: "Albert"
 tags:
     - Java 
