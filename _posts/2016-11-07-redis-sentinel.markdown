@@ -45,6 +45,22 @@ slaveof 127.0.0.1 6379
 {% endhighlight%}  
 3. 启动这个slave实例：`redis-server /usr/local/etc/redis_slave.conf`  
 ![Redis-server-slave](/img/redis-server-slave.png)  
+现在你的本地环境中应该会有两个Redis instance在运行了。  
+![Redis-mutiple-instance](/img/Screen Shot 2016-11-08 at 12.51.44 PM.png)  
+`6379`端口的是你的master，`6378`端口是你的slave。  
+4. 配置Sentinel：  
+根据Redis官方的介绍，一个功能完整的哨兵集群至少需要三个哨兵实例，原因会在后续的配置介绍中提到。
+下面给出一个最小可用的sentinel.conf配置文件：  
+{% highlight ruby%}
+port 5000 #sentinel运行端口
+sentinel monitor mymaster 127.0.0.1 6379 2 #监控的master ip & host
+sentinel down-after-milliseconds mymaster 60000 #master服务器相应sentinel ping命令的最长时间，超过此时间则该sentinel判定master主观下线。
+sentinel failover-timeout mymaster 180000 #失效转移的timeout时间，超过此时间如果失效转移还没有完成，则认为此次失效转移失败。
+sentinel parallel-syncs mymaster 1#失效转移程序执行时，允许同时向新的master同步数据的slave个数。数值越小，整个失效转移的过程就越长。
+{% endhighlight%}
+请准备三份如上所示的sentinel.conf文件，除port外，其他各项值可保持一致，我们假定三个sentinel分别运行在5000，5001和5002上，然后分别启动这三个sentinel：  
+![redis-sentinel-server](/img/Screen Shot 2016-11-08 at 9.45.36 PM.png)  
+
 
 
 
