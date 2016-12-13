@@ -37,3 +37,9 @@ ing Ruby》](http:// ruby-doc.com/docs/ProgrammingRuby/)并在你遇到不懂的
 如果你想要复习一下Rails的话，Michael Hartl的[《Rails Tutorials》](http://ruby.railstutorial.org/ruby-on-rails-tutorial-book)是个不错的选择，链接是它的免费HTML版，当然你也可以购买它的PDF或者演示文稿，如果你之前有了解过Rails的话，那么本书中的一些概念你会更容易理解。
 
 在本书的大部分章节中，我们会使用到一些Ruby的小魔法，别担心，每个章节我们都会有详细的解释，并且这些小魔法其实也并不是那么难理解，它们只是会让你觉得惊讶：“原来Ruby能让我们这么干！”
+
+消解
+-----
+
+本书的每一个章节都对应着这个类Rails框架中的一个系统，我们将这个框架命名为Rulers（就像Ruby on Rulers）。Rulers会比最新版本的Rails简单很多，不过当你完成这样一个简单版本的框架构建之后，你将会了解到复杂的Rails框架是如何工作的。
+
