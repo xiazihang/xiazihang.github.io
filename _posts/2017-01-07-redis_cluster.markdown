@@ -1,7 +1,7 @@
 ---
 layout:   post
 title:    Redis Cluster 
-date:     2016-10-07 23:19:00
+date:     2017-01-08 01:29:00
 author:   "Albert"
 tags:
     - Redis  
