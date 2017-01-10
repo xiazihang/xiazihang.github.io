@@ -185,7 +185,6 @@ redis-cli -p 7000 debug segfault
 ```code
 redis-cli -p 7002 cluster nodes
 ```
-
 可以查看当前集群中的各节点的状态： 
 
 ```code
@@ -196,7 +195,6 @@ e6ca11f5dcf843a90ce4a3c9dbfb0280ab7bbbf3 127.0.0.1:7005 slave 02f080d3f19439b1ef
 73dbda980af150ec2e0442fcee78b17d203befcf 127.0.0.1:7001 master - 0 1484053016573 2 connected 5461-10922
 1a35e11cc0d18643a1e453a3776f809eb0ce4892 127.0.0.1:7003 master - 0 1484053014508 7 connected 0-5460
 ```
-
 可以看到，7000端口的状态以及是fail了，它之前的slave节点7003被自动选举为新的master节点，并且维护同样的一组哈希槽，保证了集群在master节点挂掉后，仍能正常工作，并且保证数据不丢失。
 
 待续。 
