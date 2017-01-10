@@ -185,7 +185,9 @@ redis-cli -p 7000 debug segfault
 ```code
 redis-cli -p 7002 cluster nodes
 ```
+
 可以查看当前集群中的各节点的状态： 
+
 ```code
 bc146107083d068d993ed6695ccd59de11386904 127.0.0.1:7004 slave 73dbda980af150ec2e0442fcee78b17d203befcf 0 1484053015027 5 connected
 3c7784ae915d585e680274696d24e66bb9ae428e 127.0.0.1:7000 master,fail - 1484052856076 1484052854416 1 disconnected
