@@ -150,3 +150,51 @@ S: e6ca11f5dcf843a90ce4a3c9dbfb0280ab7bbbf3 127.0.0.1:7005
 ```
 
 可以很清楚地看到，我们之前启动的六个节点已经被分成了三主三从，并且三个master节点近乎平均地分配了前面提到的那16384个`哈希槽`。现在你再回过头去看看每个节点对应的目录，可以发现多了几个文件： `appendonly.aof`、`nodes.conf` 以及`dump.rdb`。到这一步，我们的Redis集群就创建好了，下面，我们试着来和这个集群进行一些简单的交互。
+
+首先，我们以集群模式开启Redis的客户端，以`7000`端口的这个节点为例：
+
+```code
+redis-cli -c -p 7000
+```
+
+在此节点上，我们设置一个值： 
+
+```code
+127.0.0.1:7000> set foo bar
+-> Redirected to slot [12182] located at 127.0.0.1:7002
+OK
+127.0.0.1:7002>
+```
+
+可以看到，Redis Cluster在接受到客户端发出的写命令后，会根据它内部的分片算法，将key（`foo`）进行[CRC16](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)校验，然后再与16384取余，计算出该key所对应的哈希槽（12182），此哈希槽在7002这个端口对应的节点中，所以，Redis Cluster自动的进行重定向，将该key添加到7002的节点中，并同时将客户端的redis实例转到7002的节点下。`get`命令会同样执行以上过程： 
+
+```code
+127.0.0.1:7000> get foo
+-> Redirected to slot [12182] located at 127.0.0.1:7002
+"bar"
+127.0.0.1:7002>
+```
+
+接下来，我们来试验一下Redis Cluster的可用性情况，我们让7000这个master节点挂掉，可以使用Redis提供的原生命令： 
+
+```code
+redis-cli -p 7000 debug segfault
+```
+我们通过命令： 
+
+```code
+redis-cli -p 7002 cluster nodes
+```
+可以查看当前集群中的各节点的状态： 
+```code
+bc146107083d068d993ed6695ccd59de11386904 127.0.0.1:7004 slave 73dbda980af150ec2e0442fcee78b17d203befcf 0 1484053015027 5 connected
+3c7784ae915d585e680274696d24e66bb9ae428e 127.0.0.1:7000 master,fail - 1484052856076 1484052854416 1 disconnected
+02f080d3f19439b1ef434112a8388a7db16aefd2 127.0.0.1:7002 myself,master - 0 0 3 connected 10923-16383
+e6ca11f5dcf843a90ce4a3c9dbfb0280ab7bbbf3 127.0.0.1:7005 slave 02f080d3f19439b1ef434112a8388a7db16aefd2 0 1484053015541 6 connected
+73dbda980af150ec2e0442fcee78b17d203befcf 127.0.0.1:7001 master - 0 1484053016573 2 connected 5461-10922
+1a35e11cc0d18643a1e453a3776f809eb0ce4892 127.0.0.1:7003 master - 0 1484053014508 7 connected 0-5460
+```
+
+可以看到，7000端口的状态以及是fail了，它之前的slave节点7003被自动选举为新的master节点，并且维护同样的一组哈希槽，保证了集群在master节点挂掉后，仍能正常工作，并且保证数据不丢失。
+
+待续。 
